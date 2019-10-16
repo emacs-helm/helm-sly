@@ -304,7 +304,7 @@ If a prefix arg is given split windows vertically."
 If the input doesn't look like an URL or a domain name, the
 word(s) will be searched for via `eww-search-prefix'."
   (let ((current-prefix-arg '-))
-    (helm-sly-new-repl name)))
+    (call-interactively #'sly)))
 
 (defvar helm-sly-new
   (helm-build-dummy-source "Open new REPL"
