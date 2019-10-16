@@ -1,33 +1,26 @@
-#+TITLE: Helm-SLIME
+#+TITLE: Helm-SLY
 
-Helm for [[https://github.com/slime/slime][SLIME]], the Superior Lisp Interaction Mode for Emacs, and its cousin [[https://github.com/joaotavora/sly  joaotavora/sly][Sly]].
+Helm for [[https://github.com/joaotavora/sly  joaotavora/sly][SLY]], a Common Lisp interaction mode for Emacs.
 
 * Installation
 
-Add =helm-slime.el= to your load-path.
-Set up SLIME or Sly properly.
+Add =helm-sly.el= to your load-path.
+Set up SLY properly.
 
-If you use SLIME, call ~slime-setup~ and include ~'helm-slime~ as the arguments:
+To use Helm instead of the Xref buffer, enable ~global-helm-lisp-mode~.
 
-#+begin_src lisp
-(slime-setup '([others contribs ...] helm-slime))
-#+end_src
+To enable Helm for completion, two options:
 
-or simply require ~helm-slime~ in some appropriate manner.
+- Without company:
 
-To use Helm instead of the Xref buffer, enable ~global-helm-slime-mode~.
-
-To enable Helm for completion, install [[https://github.com/Sodel-the-Vociferous/helm-company][helm-company]].  With SLIME, you'll
-also need [[https://github.com/anwyn/slime-company/][slime-company]].  Then:
-
-- SLIME:
   #+begin_src lisp
-  (slime-setup '(slime-company))
-  (require 'helm-company)
-  (define-key slime-repl-mode-map (kbd "<tab>") 'helm-company)
+  (add-hook 'sly-mrepl-hook #'sly-symbol-completion-mode)
+  ;; If you want fuzzy-matching:
+  (setq helm-completion-in-region-fuzzy-match t)
   #+end_src
 
-- Sly:
+- With company:
+
   #+begin_src lisp
   (add-hook 'sly-mrepl-hook #'company-mode)
   (require 'helm-company)
@@ -36,7 +29,7 @@ also need [[https://github.com/anwyn/slime-company/][slime-company]].  Then:
 
 * Usage
 
-Helm-SLIME defines a few new commands:
+Helm-SLY defines a few new commands:
 
 - helm-lisp-list-connections :: Yet another Lisp connection list with `helm'.
 
@@ -47,11 +40,3 @@ Helm-SLIME defines a few new commands:
 - helm-lisp-mini :: Like ~helm-lisp-list-connections~, but include an extra
                     source of Lisp-related buffers, like the events buffer or
                     the scratch buffer.
-
-* Changelog
-
-** 0.5
-
-- Add support for Sly.
-- Move from the =helm-slime= prefix to the =helm-lisp= prefix.
-- Remove the =helm-slime-complete= function in favour of =helm-company=.

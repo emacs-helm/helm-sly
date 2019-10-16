@@ -1,14 +1,11 @@
-;;; helm-slime.el --- helm-sources and some utilities for SLIME. -*- lexical-binding: t -*-
+;;; helm-sly.el --- Helm sources and some utilities for SLY. -*- lexical-binding: t -*-
 
-;; Copyright (C) 2009 Takeshi Banse <takebi@laafc.net>
-;;               2012 Michael Markert <markert.michael@googlemail.com>
-;;               2013 Thierry Volpiatto <thierry.volpiatto@gmail.com>
-;;               2016 Syohei Yoshida <syohex@gmail.com>
-;;               2018, 2019 Pierre Neidhardt <mail@ambrevar.xyz>
-;; Author: Takeshi Banse <takebi@laafc.net>
-;; URL: https://github.com/emacs-helm/helm-slime
+;; Copyright (C) 2019 Pierre Neidhardt <mail@ambrevar.xyz>
+;;
+;; Author: Pierre Neidhardt <mail@ambrevar.xyz>
+;; URL: https://github.com/emacs-helm/helm-sly
 ;; Version: 0.4.0
-;; Keywords: convenience, helm, slime, sly
+;; Keywords: convenience, helm, sly, lisp
 ;; Package-Requires: ((emacs "24") (helm "3.2") (cl-lib "0.5"))
 
 ;; This program is free software; you can redistribute it and/or modify
@@ -28,7 +25,7 @@
 
 ;;; Commentary:
 ;;
-;; A Helm for using SLIME / Sly.
+;; A Helm for using SLY.
 ;;
 ;; The complete command list:
 ;;
@@ -45,17 +42,17 @@
 
 ;;; Installation:
 ;;
-;; Add helm-slime.el to your load-path.
+;; Add helm-sly.el to your load-path.
 ;; Set up SLIME or Sly properly.
 ;;
-;; If you use SLIME, call `slime-setup' and include 'helm-slime as the
+;; If you use SLIME, call `slime-setup' and include 'helm-sly as the
 ;; arguments:
 ;;
-;;   (slime-setup '([others contribs ...] helm-slime))
+;;   (slime-setup '([others contribs ...] helm-sly))
 ;;
-;; or simply require helm-slime in some appropriate manner.
+;; or simply require helm-sly in some appropriate manner.
 ;;
-;; To use Helm instead of the Xref buffer, enable `global-helm-slime-mode'.
+;; To use Helm instead of the Xref buffer, enable `global-helm-lisp-mode'.
 ;;
 ;; To enable Helm for completion, install `helm-company'
 ;; (https://github.com/Sodel-the-Vociferous/helm-company).  With SLIME, you'll
@@ -607,5 +604,5 @@ Note that the local minor mode has a global effect, thus making
   helm-lisp-mode
   helm-lisp-mode)
 
-(provide 'helm-slime)
-;;; helm-slime.el ends here
+(provide 'helm-sly)
+;;; helm-sly.el ends here
