@@ -14,7 +14,7 @@ To enable Helm for completion, two options:
 - Without company:
 
   #+begin_src lisp
-  (add-hook 'sly-mrepl-hook #'sly-symbol-completion-mode)
+  (add-hook 'sly-mrepl-hook #'helm-sly-disable-internal-completion)
   ;; If you want fuzzy-matching:
   (setq helm-completion-in-region-fuzzy-match t)
   #+end_src
@@ -35,8 +35,6 @@ Helm-SLY defines a few new commands:
 
 - helm-sly-apropos :: Yet another ~apropos~ with Helm.
 
-- helm-sly-repl-history :: Select an input from the REPL history and insert it.
-
-- helm-sly-mini :: Like ~helm-sly-list-connections~, but include an extra
-                    source of Lisp-related buffers, like the events buffer or
-                    the scratch buffer.
+- helm-sly-mini :: Like ~helm-sly-list-connections~, but include an extra source
+                   of Lisp-related buffers, like the events buffer or the
+                   scratch buffer.

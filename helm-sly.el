@@ -48,7 +48,7 @@
 ;;
 ;; - Without company:
 ;;
-;;   (add-hook 'sly-mrepl-hook #'sly-symbol-completion-mode)
+;;   (add-hook 'sly-mrepl-hook #'helm-sly-disable-internal-completion)
 ;;
 ;;   If you want fuzzy-matching:
 ;;
@@ -69,6 +69,11 @@
 (require 'sly)
 (require 'sly-mrepl)
 (require 'cl-lib)
+
+(defun helm-sly-disable-internal-completion ()
+  "Disable SLY own's completion system, e.g. to use Helm instead.
+This is mostly useful when added to `sly-mrepl-hook'."
+  (sly-symbol-completion-mode -1))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
