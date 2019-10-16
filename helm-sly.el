@@ -6,7 +6,7 @@
 ;; URL: https://github.com/emacs-helm/helm-sly
 ;; Version: 0.4.0
 ;; Keywords: convenience, helm, sly, lisp
-;; Package-Requires: ((emacs "24") (helm "3.2") (cl-lib "0.5") (sly))
+;; Package-Requires: ((emacs "25") (helm "3.2") (cl-lib "0.5") (sly "0.0"))
 
 ;; This program is free software; you can redistribute it and/or modify
 ;; it under the terms of the GNU General Public License as published by
@@ -299,10 +299,7 @@ If a prefix arg is given split windows vertically."
 (defun helm-sly-new-repl (name)
   (sly-mrepl-new (sly-current-connection) name))
 
-(defun helm-sly-new-repl-choose-lisp (name)
-  "Fetch URL and render the page in a new buffer.
-If the input doesn't look like an URL or a domain name, the
-word(s) will be searched for via `eww-search-prefix'."
+(defun helm-sly-new-repl-choose-lisp ()
   (let ((current-prefix-arg '-))
     (call-interactively #'sly)))
 
@@ -464,7 +461,8 @@ Note that the local minor mode has a global effect, thus making
 ;;;###autoload
 (define-globalized-minor-mode global-helm-sly-mode
   helm-sly-mode
-  helm-sly-mode)
+  helm-sly-mode
+  :require 'helm-sly)
 
 (provide 'helm-sly)
 ;;; helm-sly.el ends here
