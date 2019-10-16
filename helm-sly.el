@@ -29,15 +29,15 @@
 ;;
 ;; The complete command list:
 ;;
-;;  `helm-lisp-list-connections'
+;;  `helm-sly-list-connections'
 ;;    Yet another Lisp connection list with `helm'.
-;;  `helm-lisp-apropos'
+;;  `helm-sly-apropos'
 ;;    Yet another `slime-apropos' with `helm'.
-;;  `helm-lisp-repl-history'
+;;  `helm-sly-repl-history'
 ;;    Select an input from the SLIME repl's history and insert it.
 ;;    Sly can either use this function or directly `helm-comint-input-ring'.
-;;  `helm-lisp-mini'
-;;    Like ~helm-lisp-list-connections~, but include an extra source of
+;;  `helm-sly-mini'
+;;    Like ~helm-sly-list-connections~, but include an extra source of
 ;;    Lisp-related buffers, like the events buffer or the scratch buffer.
 
 ;;; Installation:
@@ -52,7 +52,7 @@
 ;;
 ;; or simply require helm-sly in some appropriate manner.
 ;;
-;; To use Helm instead of the Xref buffer, enable `global-helm-lisp-mode'.
+;; To use Helm instead of the Xref buffer, enable `global-helm-sly-mode'.
 ;;
 ;; To enable Helm for completion, install `helm-company'
 ;; (https://github.com/Sodel-the-Vociferous/helm-company).  With SLIME, you'll
@@ -79,194 +79,194 @@
   (require 'slime-repl))
 (require 'cl-lib)
 
-(defun helm-lisp-sly-p ()
+(defun helm-sly-sly-p ()
   "Return non-nil if Sly is active."
   (require 'sly nil 'noerror))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
 
-(defvar helm-lisp-connections-map
+(defvar helm-sly-connections-map
   (let ((map (make-sparse-keymap)))
     (set-keymap-parent map helm-map)
-    (define-key map (kbd "M-D") 'helm-lisp-run-delete-buffers)
-    (define-key map (kbd "M-R") 'helm-lisp-run-rename-connection-buffer)
+    (define-key map (kbd "M-D") 'helm-sly-run-delete-buffers)
+    (define-key map (kbd "M-R") 'helm-sly-run-rename-connection-buffer)
     map)
   "Keymap for Lisp connection source in Helm.")
 
-(defun helm-lisp-output-buffer (&optional connection)
-  (if (helm-lisp-sly-p)
+(defun helm-sly-output-buffer (&optional connection)
+  (if (helm-sly-sly-p)
       (sly-mrepl--find-buffer (or connection (sly-current-connection)))
     (let ((slime-dispatching-connection (or connection
                                             slime-dispatching-connection)))
       (slime-output-buffer))))
 
-(defun helm-lisp-go-to-repl (_candidate)
+(defun helm-sly-go-to-repl (_candidate)
   "Switched to marked REPL(s)."
   (helm-window-show-buffers
    (mapcar (lambda (candidate)
              (let ((buffer (nth 1 candidate))
                    (connection (nth 0 candidate)))
                (unless buffer
-                 (if (helm-lisp-sly-p)
+                 (if (helm-sly-sly-p)
                      (sly-mrepl-new connection)
                    (let ((slime-dispatching-connection connection))
                      (slime-new-mrepl))))
                buffer))
            (helm-marked-candidates))))
-(put 'helm-lisp-go-to-repl 'helm-only t)
+(put 'helm-sly-go-to-repl 'helm-only t)
 
-(defun helm-lisp-process (connection)
-  (if (helm-lisp-sly-p)
+(defun helm-sly-process (connection)
+  (if (helm-sly-sly-p)
       (sly-process connection)
     (slime-process connection)))
 
-(defun helm-lisp-connection-number (connection)
-  (if (helm-lisp-sly-p)
+(defun helm-sly-connection-number (connection)
+  (if (helm-sly-sly-p)
       (sly-connection-number connection)
     (slime-connection-number connection)))
 
-(defun helm-lisp-connection-name (connection)
-  (if (helm-lisp-sly-p)
+(defun helm-sly-connection-name (connection)
+  (if (helm-sly-sly-p)
       (sly-connection-name connection)
     (slime-connection-name connection)))
 
-(defun helm-lisp-pid (connection)
-  (if (helm-lisp-sly-p)
+(defun helm-sly-pid (connection)
+  (if (helm-sly-sly-p)
       (sly-pid connection)
     (slime-pid connection)))
 
-(defun helm-lisp-implementation-type (connection)
-  (if (helm-lisp-sly-p)
+(defun helm-sly-implementation-type (connection)
+  (if (helm-sly-sly-p)
       (sly-lisp-implementation-type connection)
     (slime-lisp-implementation-type connection)))
 
-(defun helm-lisp-debug-buffers (connection)
-  (if (helm-lisp-sly-p)
+(defun helm-sly-debug-buffers (connection)
+  (if (helm-sly-sly-p)
       (sly-db-buffers connection)
     (sldb-buffers connection)))
 
-(defun helm-lisp-buffer-connection (buffer)
+(defun helm-sly-buffer-connection (buffer)
   (when (bufferp buffer)
     (with-current-buffer buffer
-      (if (helm-lisp-sly-p)
+      (if (helm-sly-sly-p)
           sly-buffer-connection
         slime-buffer-connection))))
 
-(defun helm-lisp-go-to-inferior (_candidate)
+(defun helm-sly-go-to-inferior (_candidate)
   "Switched to inferior Lisps associated with the marked connections."
   (helm-window-show-buffers
    (cl-loop for c in (helm-marked-candidates)
-            collect (process-buffer (helm-lisp-process
-                                     (helm-lisp-buffer-connection c))))))
-(put 'helm-lisp-go-to-inferior 'helm-only t)
+            collect (process-buffer (helm-sly-process
+                                     (helm-sly-buffer-connection c))))))
+(put 'helm-sly-go-to-inferior 'helm-only t)
 
-(defun helm-lisp-go-to-debug (_candidate)
+(defun helm-sly-go-to-debug (_candidate)
   "Switched to debug buffers associated with the marked connections."
   (helm-window-show-buffers
    (cl-loop for c in (helm-marked-candidates)
-            append (helm-lisp-debug-buffers (car c)))))
-(put 'helm-lisp-go-to-debug 'helm-only t)
+            append (helm-sly-debug-buffers (car c)))))
+(put 'helm-sly-go-to-debug 'helm-only t)
 
-(defun helm-lisp-run-delete-buffers ()
-  "Run `helm-lisp-delete-buffers' action from `helm-lisp--c-source-connection'."
+(defun helm-sly-run-delete-buffers ()
+  "Run `helm-sly-delete-buffers' action from `helm-sly--c-source-connection'."
   (interactive)
   (with-helm-alive-p
-    (helm-exit-and-execute-action 'helm-lisp-delete-buffers)))
-(put 'helm-lisp-run-delete-buffers 'helm-only t)
+    (helm-exit-and-execute-action 'helm-sly-delete-buffers)))
+(put 'helm-sly-run-delete-buffers 'helm-only t)
 
-(defun helm-lisp-set-default-connection (candidate)
+(defun helm-sly-set-default-connection (candidate)
   "Set connection to use by default to that of candidate buffer."
   (let ((connection (car candidate)))
-    (if (helm-lisp-sly-p)
+    (if (helm-sly-sly-p)
         (sly-select-connection connection)
       (slime-select-connection connection))))
-(put 'helm-lisp-rename-connection-buffer 'helm-only t)
+(put 'helm-sly-rename-connection-buffer 'helm-only t)
 
-(defun helm-lisp--net-processes ()
-  (if (helm-lisp-sly-p)
+(defun helm-sly--net-processes ()
+  (if (helm-sly-sly-p)
       sly-net-processes
     slime-net-processes))
 
-(defun helm-lisp-delete-buffers (&optional _candidate)
+(defun helm-sly-delete-buffers (&optional _candidate)
   "Kill marked REPL(s) and their inferior Lisps if they are the
 last buffer connected to it."
-  (let ((connections (helm-lisp--net-processes))
-        (repl-buffers (helm-lisp--repl-buffers)))
+  (let ((connections (helm-sly--net-processes))
+        (repl-buffers (helm-sly--repl-buffers)))
     (dolist (c (helm-marked-candidates))
       (let ((last-connection?
              (not (memq (car c)
-                        (mapcar #'helm-lisp-buffer-connection
+                        (mapcar #'helm-sly-buffer-connection
                                 (delete (cadr c) repl-buffers))))))
         (when last-connection?
-          (if (helm-lisp-sly-p)
+          (if (helm-sly-sly-p)
               (let ((sly-dispatching-connection (car c)))
                 (sly-quit-lisp t))
             (let ((slime-dispatching-connection (car c)))
               (slime-repl-quit))))
         (kill-buffer (cadr c))))))
-(put 'helm-lisp-delete-buffers 'helm-only t)
+(put 'helm-sly-delete-buffers 'helm-only t)
 
-(defun helm-lisp-restart-connections (_candidate)
+(defun helm-sly-restart-connections (_candidate)
   "Restart marked REPLs' inferior Lisps."
   (dolist (c (helm-marked-candidates))
-    (if (helm-lisp-sly-p)
-        (sly-restart-connection-at-point (helm-lisp-buffer-connection c))
-      (slime-restart-connection-at-point (helm-lisp-buffer-connection c)))))
-(put 'helm-lisp-restart-connections 'helm-only t)
+    (if (helm-sly-sly-p)
+        (sly-restart-connection-at-point (helm-sly-buffer-connection c))
+      (slime-restart-connection-at-point (helm-sly-buffer-connection c)))))
+(put 'helm-sly-restart-connections 'helm-only t)
 
-(defun helm-lisp-run-rename-connection-buffer ()
-  "Run `helm-lisp-rename-connection-buffer' action from `helm-lisp--c-source-connection'."
+(defun helm-sly-run-rename-connection-buffer ()
+  "Run `helm-sly-rename-connection-buffer' action from `helm-sly--c-source-connection'."
   (interactive)
   (with-helm-alive-p
-    (helm-exit-and-execute-action 'helm-lisp-rename-connection-buffer)))
-(put 'helm-lisp-run-rename-connection 'helm-only t)
+    (helm-exit-and-execute-action 'helm-sly-rename-connection-buffer)))
+(put 'helm-sly-run-rename-connection 'helm-only t)
 
-(defun helm-lisp-rename-connection-buffer (candidate)
+(defun helm-sly-rename-connection-buffer (candidate)
   "Rename REPL buffer."
   (let* ((slime-dispatching-connection (car candidate)))
     (when (cadr candidate)
       (with-current-buffer (cadr candidate)
         (rename-buffer (helm-read-string "New name: " (buffer-name)))))))
-(put 'helm-lisp-rename-connection-buffer 'helm-only t)
+(put 'helm-sly-rename-connection-buffer 'helm-only t)
 
-(defcustom helm-lisp-connection-actions
-  `(("Go to REPL" . helm-lisp-go-to-repl)
-    ("Set default" . helm-lisp-set-default-connection)
-    ("Restart" . helm-lisp-restart-connections)
-    (,(substitute-command-keys "Rename REPL buffer \\<helm-lisp-connections-map>`\\[helm-lisp-run-rename-connection-buffer]'")
-     . helm-lisp-rename-connection-buffer)
-    (,(substitute-command-keys "Quit \\<helm-lisp-connections-map>`\\[helm-lisp-run-delete-buffers]'")
-     . helm-lisp-delete-buffers)
-    ("Go to inferior Lisp" . helm-lisp-go-to-inferior)
-    ("Go to debug buffers" . helm-lisp-go-to-debug))
-  "Actions for `helm-lisp-list-connections`."
-  :group 'helm-lisp
+(defcustom helm-sly-connection-actions
+  `(("Go to REPL" . helm-sly-go-to-repl)
+    ("Set default" . helm-sly-set-default-connection)
+    ("Restart" . helm-sly-restart-connections)
+    (,(substitute-command-keys "Rename REPL buffer \\<helm-sly-connections-map>`\\[helm-sly-run-rename-connection-buffer]'")
+     . helm-sly-rename-connection-buffer)
+    (,(substitute-command-keys "Quit \\<helm-sly-connections-map>`\\[helm-sly-run-delete-buffers]'")
+     . helm-sly-delete-buffers)
+    ("Go to inferior Lisp" . helm-sly-go-to-inferior)
+    ("Go to debug buffers" . helm-sly-go-to-debug))
+  "Actions for `helm-sly-list-connections`."
+  :group 'helm-sly
   :type '(alist :key-type string :value-type function))
 
-(defun helm-lisp--connection-candidates (p &optional buffer)
+(defun helm-sly--connection-candidates (p &optional buffer)
   "Return (DISPLAY-VALUE . REAL-VALUE) for connection P.
 The REAL-VALUE is (P BUFFER)."
   (setq buffer (or buffer
-                   (helm-lisp-output-buffer p)))
+                   (helm-sly-output-buffer p)))
   (let ((fstring "%s%2s  %-10s  %-17s  %-7s %-s %s"))
     (cons
      (format fstring
-             (if (eq (if (helm-lisp-sly-p)
+             (if (eq (if (helm-sly-sly-p)
                          sly-default-connection
                        slime-default-connection)
                      p)
                  "*"
                " ")
-             (helm-lisp-connection-number p)
-             (helm-lisp-connection-name p)
+             (helm-sly-connection-number p)
+             (helm-sly-connection-name p)
              (or (process-id p) (process-contact p))
-             (helm-lisp-pid p)
-             (helm-lisp-implementation-type p)
+             (helm-sly-pid p)
+             (helm-sly-implementation-type p)
              buffer)
      (list p buffer))))
 
-(defun helm-lisp--repl-buffers (&optional connection thread)
+(defun helm-sly--repl-buffers (&optional connection thread)
   ;; Inspired by `sly-mrepl--find-buffer'.
   (cl-remove-if-not
    (lambda (x)
@@ -275,7 +275,7 @@ The REAL-VALUE is (P BUFFER)."
                                slime-repl-mode
                                slime-mrepl-mode))
             (or (not connection)
-                (eq (if (helm-lisp-sly-p)
+                (eq (if (helm-sly-sly-p)
                         sly-buffer-connection
                       slime-buffer-connection)
                     connection))
@@ -285,45 +285,45 @@ The REAL-VALUE is (P BUFFER)."
                              slime-current-thread))))))
    (buffer-list)))
 
-(defun helm-lisp--repl-buffer-candidates ()
+(defun helm-sly--repl-buffer-candidates ()
   "Return buffer/connection candidates.
 It returns all REPL buffer candidates + connections without buffers."
-  (let* ((repl-buffers (helm-lisp--repl-buffers))
+  (let* ((repl-buffers (helm-sly--repl-buffers))
          (buffer-connections (cl-delete-duplicates
-                              (mapcar #'helm-lisp-buffer-connection
+                              (mapcar #'helm-sly-buffer-connection
                                       repl-buffers))))
     (append (mapcar (lambda (b)
-                      (helm-lisp--connection-candidates
-                       (helm-lisp-buffer-connection b)
+                      (helm-sly--connection-candidates
+                       (helm-sly-buffer-connection b)
                        b))
                     repl-buffers)
-            (mapcar #'helm-lisp--connection-candidates
+            (mapcar #'helm-sly--connection-candidates
                     (cl-set-difference
-                     (reverse (helm-lisp--net-processes))
+                     (reverse (helm-sly--net-processes))
                      buffer-connections)))))
 
-(defun helm-lisp--c-source-connection ()
+(defun helm-sly--c-source-connection ()
   (helm-build-sync-source "Lisp connections"
-    :candidates (helm-lisp--repl-buffer-candidates)
-    :action helm-lisp-connection-actions
-    :keymap helm-lisp-connections-map))
+    :candidates (helm-sly--repl-buffer-candidates)
+    :action helm-sly-connection-actions
+    :keymap helm-sly-connections-map))
 
 ;;;###autoload
-(defun helm-lisp-list-connections ()
+(defun helm-sly-list-connections ()
   "List Lisp connections with Helm."
   (interactive)
-  (helm :sources (list (helm-lisp--c-source-connection))
-        :buffer "*helm-lisp-list-connections*"))
+  (helm :sources (list (helm-sly--c-source-connection))
+        :buffer "*helm-sly-list-connections*"))
 
-(defun helm-lisp--buffer-candidates ()
+(defun helm-sly--buffer-candidates ()
   "Collect Lisp-related buffers, like the `events' buffer.
 If the buffer does not exist, we use the associated function to generate it.
 
 The list is in the (DISPLAY . REAL) form.  Because Helm seems to
 require that REAL be a string, we need to (funcall (intern
-\"function\")) in `helm-lisp-switch-buffers' to generate the
+\"function\")) in `helm-sly-switch-buffers' to generate the
 buffer."
-  (if (helm-lisp-sly-p)
+  (if (helm-sly-sly-p)
       (list (cons (sly-buffer-name :events :connection (sly-current-connection))
                   "sly-pop-to-events-buffer")
             (cons (sly-buffer-name :threads :connection (sly-current-connection))
@@ -334,7 +334,7 @@ buffer."
             (cons slime-threads-buffer-name "slime-list-threads")
             (cons (slime-buffer-name :scratch) "slime-scratch-buffer"))))
 
-(defun helm-lisp-switch-buffers (_candidate)
+(defun helm-sly-switch-buffers (_candidate)
   "Switch to buffer candidates and replace current buffer.
 
 If more than one buffer marked switch to these buffers in separate windows.
@@ -343,13 +343,13 @@ If a prefix arg is given split windows vertically."
    (cl-loop for b in (helm-marked-candidates)
             collect (funcall (intern b)))))
 
-(defun helm-lisp-build-buffers-source ()
+(defun helm-sly-build-buffers-source ()
   (helm-build-sync-source "Lisp buffers"
-    :candidates (helm-lisp--buffer-candidates)
-    :action `(("Switch to buffer(s)" . helm-lisp-switch-buffers))))
+    :candidates (helm-sly--buffer-candidates)
+    :action `(("Switch to buffer(s)" . helm-sly-switch-buffers))))
 
-(defun helm-lisp-new-repl (name)
-  (if (helm-lisp-sly-p)
+(defun helm-sly-new-repl (name)
+  (if (helm-sly-sly-p)
       ;; TODO: Set new Sly connection?
       (sly-mrepl-new (sly-current-connection) name)
     (cl-flet ((slime-repl-buffer (&optional create _connection)
@@ -363,134 +363,134 @@ If a prefix arg is given split windows vertically."
           (slime-new-mrepl)
         (slime)))))
 
-(defun helm-lisp-new-repl-choose-lisp (name)
+(defun helm-sly-new-repl-choose-lisp (name)
   "Fetch URL and render the page in a new buffer.
 If the input doesn't look like an URL or a domain name, the
 word(s) will be searched for via `eww-search-prefix'."
   (let ((current-prefix-arg '-))
-    (helm-lisp-new-repl name)))
+    (helm-sly-new-repl name)))
 
-(defvar helm-lisp-new
+(defvar helm-sly-new
   (helm-build-dummy-source "Open new REPL"
     :action (helm-make-actions
-             "Open new REPL" 'helm-lisp-new-repl
-             "Open new REPL with chosen Lisp" 'helm-lisp-new-repl-choose-lisp)))
+             "Open new REPL" 'helm-sly-new-repl
+             "Open new REPL with chosen Lisp" 'helm-sly-new-repl-choose-lisp)))
 
-(defun helm-lisp-mini ()
+(defun helm-sly-mini ()
   "Helm for Lisp connections and buffers."
   (interactive)
-  (helm :sources (list (helm-lisp--c-source-connection)
-                       helm-lisp-new
-                       (helm-lisp-build-buffers-source))
-        :buffer "*helm-lisp-mini*"))
+  (helm :sources (list (helm-sly--c-source-connection)
+                       helm-sly-new
+                       (helm-sly-build-buffers-source))
+        :buffer "*helm-sly-mini*"))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
 
-(defclass helm-lisp-apropos-type (helm-source-sync)
-  ((action :initform `(("Describe SYMBOL" . ,(if (helm-lisp-sly-p)
+(defclass helm-sly-apropos-type (helm-source-sync)
+  ((action :initform `(("Describe SYMBOL" . ,(if (helm-sly-sly-p)
                                                  'sly-describe-symbol
                                                'slime-describe-symbol))
-                       ("Edit definition" . ,(if (helm-lisp-sly-p)
+                       ("Edit definition" . ,(if (helm-sly-sly-p)
                                                  'sly-edit-definition
                                                'slime-edit-definition))))
-   (persistent-action :initform (if (helm-lisp-sly-p)
+   (persistent-action :initform (if (helm-sly-sly-p)
                                     #'sly-describe-symbol
                                   #'slime-describe-symbol))
    ;;(volatile :initform t)
    (requires-pattern :initform 2))
   "Lisp apropos.")
 
-(defun helm-lisp--format-designator (designator)
-  (if (helm-lisp-sly-p)
+(defun helm-sly--format-designator (designator)
+  (if (helm-sly-sly-p)
       (let ((package (cadr designator))
             (name (car designator)))
         (format "%s:%s" package name))
       designator))
 
-(defun helm-lisp--apropos-source (name external-only case-sensitive current-package)
+(defun helm-sly--apropos-source (name external-only case-sensitive current-package)
   "Build source that provides Helm completion against `apropos'."
-  (helm-make-source name 'helm-lisp-apropos-type
+  (helm-make-source name 'helm-sly-apropos-type
     :candidates `(lambda ()
                    (with-current-buffer helm-current-buffer
-                     (cl-loop for plist in (if (helm-lisp-sly-p)
+                     (cl-loop for plist in (if (helm-sly-sly-p)
                                                (sly-eval (list 'slynk-apropos:apropos-list-for-emacs
                                                                helm-pattern
                                                                ,(not (null external-only))
                                                                ,(not (null case-sensitive))
                                                                (when ,current-package
-                                                                 (helm-lisp-current-package))))
+                                                                 (helm-sly-current-package))))
                                              (slime-eval (list 'swank:apropos-list-for-emacs
                                                                helm-pattern
                                                                ,(not (null external-only))
                                                                ,(not (null case-sensitive))
                                                                (when ,current-package
-                                                                 (helm-lisp-current-package)))))
-                              collect (helm-lisp--format-designator (plist-get plist :designator)))))))
+                                                                 (helm-sly-current-package)))))
+                              collect (helm-sly--format-designator (plist-get plist :designator)))))))
 
-(defun helm-lisp-current-package ()
-  (if (helm-lisp-sly-p)
+(defun helm-sly-current-package ()
+  (if (helm-sly-sly-p)
       (or sly-buffer-package
           (sly-current-package))
     (or slime-buffer-package
         (slime-current-package))))
 
-(defvar helm-lisp--c-source-apropos-symbol-current-package
-  (helm-lisp--apropos-source
+(defvar helm-sly--c-source-apropos-symbol-current-package
+  (helm-sly--apropos-source
    "Apropos (current package)"
    nil
    nil
-   (helm-lisp-current-package)))
+   (helm-sly-current-package)))
 
-(defvar helm-lisp--c-source-apropos-symbol-current-external-package
-  (helm-lisp--apropos-source
+(defvar helm-sly--c-source-apropos-symbol-current-external-package
+  (helm-sly--apropos-source
    "Apropos (current external package)"
    'external-only
    nil
-   (helm-lisp-current-package)))
+   (helm-sly-current-package)))
 
-(defvar helm-lisp--c-source-apropos-symbol-all-external-package
-  (helm-lisp--apropos-source
+(defvar helm-sly--c-source-apropos-symbol-all-external-package
+  (helm-sly--apropos-source
    "Apropos (all external packages)"
    'external-only
    nil
    nil))
 
-(defvar helm-lisp--c-source-apropos-symbol-all-package
-  (helm-lisp--apropos-source
+(defvar helm-sly--c-source-apropos-symbol-all-package
+  (helm-sly--apropos-source
    "Apropos (all packages)"
    nil
    nil
    nil))
 
-(defvar helm-lisp-apropos-sources
-  '(helm-lisp--c-source-apropos-symbol-current-package
-    helm-lisp--c-source-apropos-symbol-current-external-package
-    helm-lisp--c-source-apropos-symbol-all-external-package
-    helm-lisp--c-source-apropos-symbol-all-package)
-  "List of Helm sources for `helm-lisp-apropos'.")
+(defvar helm-sly-apropos-sources
+  '(helm-sly--c-source-apropos-symbol-current-package
+    helm-sly--c-source-apropos-symbol-current-external-package
+    helm-sly--c-source-apropos-symbol-all-external-package
+    helm-sly--c-source-apropos-symbol-all-package)
+  "List of Helm sources for `helm-sly-apropos'.")
 
 ;;;###autoload
-(defun helm-lisp-apropos ()
+(defun helm-sly-apropos ()
   "Yet another Apropos with `helm'."
   (interactive)
-  (helm :sources helm-lisp-apropos-sources
+  (helm :sources helm-sly-apropos-sources
         :buffer "*helm lisp apropos*"))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
 
-(defun helm-lisp-repl-input-history-action (candidate)
-  "Default action for `helm-lisp-repl-history'."
+(defun helm-sly-repl-input-history-action (candidate)
+  "Default action for `helm-sly-repl-history'."
   (slime-repl-history-replace 'backward
                               (concat "^" (regexp-quote candidate) "$")))
 
-(defgroup helm-lisp nil
+(defgroup helm-sly nil
   "SLIME for Helm."
   :group 'helm)
 
-(defcustom helm-lisp-history-max-offset 400
-  "Max number of chars displayed per candidate in `helm-lisp-repl-history'.
+(defcustom helm-sly-history-max-offset 400
+  "Max number of chars displayed per candidate in `helm-sly-repl-history'.
 When `t', don't truncate candidate, show all.
 By default it is approximatively the number of bits contained in five lines
 of 80 chars each i.e 80*5.
@@ -498,35 +498,35 @@ Note that if you set this to nil multiline will be disabled, i.e you
 will not have anymore separators between candidates."
   :type '(choice (const :tag "Disabled" t)
           (integer :tag "Max candidate offset"))
-  :group 'helm-lisp)
+  :group 'helm-sly)
 
-(defvar helm-lisp-source-repl-input-history
+(defvar helm-sly-source-repl-input-history
   (helm-build-sync-source "REPL history"
     :candidates (lambda ()
                   (with-helm-current-buffer
                     slime-repl-input-history))
-    :action 'helm-lisp-repl-input-history-action
-    :multiline 'helm-lisp-history-max-offset)
+    :action 'helm-sly-repl-input-history-action
+    :multiline 'helm-sly-history-max-offset)
   "Source that provides Helm completion against `slime-repl-input-history'.")
 
 ;;;###autoload
-(defun helm-lisp-repl-history ()
+(defun helm-sly-repl-history ()
   "Select an input from the REPL's history and insert it.
 MREPL use the buffer local history as per comint mode.
 SLIME REPL uses its own global history."
   (interactive)
-  (if (or (helm-lisp-sly-p)
+  (if (or (helm-sly-sly-p)
           (derived-mode-p 'slime-mrepl-mode))
       (helm-comint-input-ring)
     (when (derived-mode-p 'slime-repl-mode)
-      (helm :sources 'helm-lisp-source-repl-input-history
+      (helm :sources 'helm-sly-source-repl-input-history
             :input (buffer-substring-no-properties (point) slime-repl-input-start-mark)
             :buffer "*helm lisp repl history*"))))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
 
-(defun helm-lisp-normalize-xrefs (xref-alist)
+(defun helm-sly-normalize-xrefs (xref-alist)
   "Like `slime-insert-xrefs' but return a formatted list of strings instead.
 The strings are formatted as \"GROUP: LABEL\"."
   (cl-loop for (group . refs) in xref-alist
@@ -535,12 +535,12 @@ The strings are formatted as \"GROUP: LABEL\"."
                     collect
                     (list group label location))))
 
-(defun helm-lisp-xref-lineno (location)
+(defun helm-sly-xref-lineno (location)
   "Return 0 if there is location does not refer to a proper file."
   (or
    (ignore-errors
      (save-window-excursion
-       (if (helm-lisp-sly-p)
+       (if (helm-sly-sly-p)
            (sly--pop-to-source-location location
                                         'sly-xref)
          (slime-goto-location-buffer (nth 1 location)))
@@ -548,61 +548,61 @@ The strings are formatted as \"GROUP: LABEL\"."
         (car (alist-get :position (cdr location))))))
    0))
 
-(defun helm-lisp-xref-transformer (candidates)
+(defun helm-sly-xref-transformer (candidates)
   "Transform CANDIDATES (a list of (GROUP LABEL LOCATION) as per
-`helm-lisp-normalize-xrefs') to \"GROUP: LABEL\"."
+`helm-sly-normalize-xrefs') to \"GROUP: LABEL\"."
   (cl-loop for (group label location) in candidates
            collect (cons (concat (propertize (abbreviate-file-name group)
                                              'face 'helm-grep-file)
                                  ":"
                                  (propertize
-                                  (number-to-string (helm-lisp-xref-lineno location))
+                                  (number-to-string (helm-sly-xref-lineno location))
                                   'face 'helm-grep-lineno)
                                  ":"
-                                 (if (helm-lisp-sly-p)
+                                 (if (helm-sly-sly-p)
                                      (sly-one-line-ify label)
                                    (slime-one-line-ify label)))
                          (list group label location))))
 
-(defun helm-lisp-xref-goto (candidate)
+(defun helm-sly-xref-goto (candidate)
   (let ((location (nth 2 candidate)))
     (switch-to-buffer
-     (if (helm-lisp-sly-p)
+     (if (helm-sly-sly-p)
          (save-window-excursion
            (sly--pop-to-source-location location 'sly-xref))
        (save-window-excursion
          (slime-show-source-location location t 1)
          (slime-goto-location-buffer (nth 1 location)))))))
 
-(defun helm-lisp-build-xref-source (xrefs)
+(defun helm-sly-build-xref-source (xrefs)
   (helm-build-sync-source "Lisp xrefs"
-    :candidates (helm-lisp-normalize-xrefs xrefs)
-    :candidate-transformer 'helm-lisp-xref-transformer
-    :action `(("Switch to buffer(s)" . helm-lisp-xref-goto))))
+    :candidates (helm-sly-normalize-xrefs xrefs)
+    :candidate-transformer 'helm-sly-xref-transformer
+    :action `(("Switch to buffer(s)" . helm-sly-xref-goto))))
 
-(defun helm-lisp-show-xref-buffer (xrefs _type _symbol _package &optional _method)
+(defun helm-sly-show-xref-buffer (xrefs _type _symbol _package &optional _method)
   "See `sly-xref--show-results'."
-  (helm :sources (list (helm-lisp-build-xref-source xrefs))
-        :buffer "*helm-lisp-xref*"))
+  (helm :sources (list (helm-sly-build-xref-source xrefs))
+        :buffer "*helm-sly-xref*"))
 
 ;;;###autoload
-(define-minor-mode helm-lisp-mode
+(define-minor-mode helm-sly-mode
   "Use Helm for Lisp xref selections.
 Note that the local minor mode has a global effect, thus making
-`global-helm-lisp-mode' and `helm-lisp-mode' equivalent."
+`global-helm-sly-mode' and `helm-sly-mode' equivalent."
   ;; TODO: Is it possible to disable the local minor mode?
   :init-value nil
-  (let ((target (if (helm-lisp-sly-p)
+  (let ((target (if (helm-sly-sly-p)
                     'sly-xref--show-results
                   'slime-show-xref-buffer)))
-    (if (advice-member-p 'helm-lisp-show-xref-buffer target)
-        (advice-remove target 'helm-lisp-show-xref-buffer)
-      (advice-add target :override 'helm-lisp-show-xref-buffer))))
+    (if (advice-member-p 'helm-sly-show-xref-buffer target)
+        (advice-remove target 'helm-sly-show-xref-buffer)
+      (advice-add target :override 'helm-sly-show-xref-buffer))))
 
 ;;;###autoload
-(define-globalized-minor-mode global-helm-lisp-mode
-  helm-lisp-mode
-  helm-lisp-mode)
+(define-globalized-minor-mode global-helm-sly-mode
+  helm-sly-mode
+  helm-sly-mode)
 
 (provide 'helm-sly)
 ;;; helm-sly.el ends here
