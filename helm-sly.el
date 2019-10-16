@@ -33,9 +33,6 @@
 ;;    Yet another Lisp connection list with `helm'.
 ;;  `helm-sly-apropos'
 ;;    Yet another `slime-apropos' with `helm'.
-;;  `helm-sly-repl-history'
-;;    Select an input from the SLIME repl's history and insert it.
-;;    Sly can either use this function or directly `helm-comint-input-ring'.
 ;;  `helm-sly-mini'
 ;;    Like ~helm-sly-list-connections~, but include an extra source of
 ;;    Lisp-related buffers, like the events buffer or the scratch buffer.
@@ -476,52 +473,6 @@ word(s) will be searched for via `eww-search-prefix'."
   (interactive)
   (helm :sources helm-sly-apropos-sources
         :buffer "*helm lisp apropos*"))
-
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-
-
-(defun helm-sly-repl-input-history-action (candidate)
-  "Default action for `helm-sly-repl-history'."
-  (slime-repl-history-replace 'backward
-                              (concat "^" (regexp-quote candidate) "$")))
-
-(defgroup helm-sly nil
-  "SLIME for Helm."
-  :group 'helm)
-
-(defcustom helm-sly-history-max-offset 400
-  "Max number of chars displayed per candidate in `helm-sly-repl-history'.
-When `t', don't truncate candidate, show all.
-By default it is approximatively the number of bits contained in five lines
-of 80 chars each i.e 80*5.
-Note that if you set this to nil multiline will be disabled, i.e you
-will not have anymore separators between candidates."
-  :type '(choice (const :tag "Disabled" t)
-          (integer :tag "Max candidate offset"))
-  :group 'helm-sly)
-
-(defvar helm-sly-source-repl-input-history
-  (helm-build-sync-source "REPL history"
-    :candidates (lambda ()
-                  (with-helm-current-buffer
-                    slime-repl-input-history))
-    :action 'helm-sly-repl-input-history-action
-    :multiline 'helm-sly-history-max-offset)
-  "Source that provides Helm completion against `slime-repl-input-history'.")
-
-;;;###autoload
-(defun helm-sly-repl-history ()
-  "Select an input from the REPL's history and insert it.
-MREPL use the buffer local history as per comint mode.
-SLIME REPL uses its own global history."
-  (interactive)
-  (if (or (helm-sly-sly-p)
-          (derived-mode-p 'slime-mrepl-mode))
-      (helm-comint-input-ring)
-    (when (derived-mode-p 'slime-repl-mode)
-      (helm :sources 'helm-sly-source-repl-input-history
-            :input (buffer-substring-no-properties (point) slime-repl-input-start-mark)
-            :buffer "*helm lisp repl history*"))))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
