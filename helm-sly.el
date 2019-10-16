@@ -40,30 +40,27 @@
 ;;; Installation:
 ;;
 ;; Add helm-sly.el to your load-path.
-;; Set up SLIME or Sly properly.
-;;
-;; If you use SLIME, call `slime-setup' and include 'helm-sly as the
-;; arguments:
-;;
-;;   (slime-setup '([others contribs ...] helm-sly))
-;;
-;; or simply require helm-sly in some appropriate manner.
+;; Set up SLY properly.
 ;;
 ;; To use Helm instead of the Xref buffer, enable `global-helm-sly-mode'.
 ;;
-;; To enable Helm for completion, install `helm-company'
-;; (https://github.com/Sodel-the-Vociferous/helm-company).  With SLIME, you'll
-;; also need `slime-company' (https://github.com/anwyn/slime-company/).  Then:
+;; To enable Helm for completion, two options:
 ;;
-;; - SLIME:
-;;  (slime-setup '(slime-company))
-;;  (require 'helm-company)
-;;  (define-key slime-repl-mode-map (kbd "<tab>") 'helm-company)
+;; - Without company:
 ;;
-;; - Sly:
-;;  (add-hook 'sly-mrepl-hook #'company-mode)
-;;  (require 'helm-company)
-;;  (define-key sly-mrepl-mode-map (kbd "<tab>") 'helm-company)
+;;   (add-hook 'sly-mrepl-hook #'sly-symbol-completion-mode)
+;;
+;;   If you want fuzzy-matching:
+;;
+;;   (setq helm-completion-in-region-fuzzy-match t)
+;;
+;;
+;; - With company, install helm-company
+;;   (https://github.com/Sodel-the-Vociferous/helm-company), then:
+;;
+;;   (add-hook 'sly-mrepl-hook #'company-mode)
+;;   (require 'helm-company)
+;;   (define-key sly-mrepl-mode-map (kbd "<tab>") 'helm-company)
 
 ;;; Code:
 

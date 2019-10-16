@@ -7,7 +7,7 @@ Helm for [[https://github.com/joaotavora/sly  joaotavora/sly][SLY]], a Common 
 Add =helm-sly.el= to your load-path.
 Set up SLY properly.
 
-To use Helm instead of the Xref buffer, enable ~global-helm-lisp-mode~.
+To use Helm instead of the Xref buffer, enable ~global-helm-sly-mode~.
 
 To enable Helm for completion, two options:
 
@@ -19,7 +19,7 @@ To enable Helm for completion, two options:
   (setq helm-completion-in-region-fuzzy-match t)
   #+end_src
 
-- With company:
+- With company, install [[https://github.com/Sodel-the-Vociferous/helm-company][helm-company]], then:
 
   #+begin_src lisp
   (add-hook 'sly-mrepl-hook #'company-mode)
@@ -31,12 +31,12 @@ To enable Helm for completion, two options:
 
 Helm-SLY defines a few new commands:
 
-- helm-lisp-list-connections :: Yet another Lisp connection list with `helm'.
+- helm-sly-list-connections :: Yet another Lisp connection list with `helm'.
 
-- helm-lisp-apropos :: Yet another ~apropos~ with Helm.
+- helm-sly-apropos :: Yet another ~apropos~ with Helm.
 
-- helm-lisp-repl-history :: Select an input from the REPL history and insert it.
+- helm-sly-repl-history :: Select an input from the REPL history and insert it.
 
-- helm-lisp-mini :: Like ~helm-lisp-list-connections~, but include an extra
+- helm-sly-mini :: Like ~helm-sly-list-connections~, but include an extra
                     source of Lisp-related buffers, like the events buffer or
                     the scratch buffer.
