@@ -67,8 +67,10 @@
 (require 'helm)
 (require 'helm-buffers)
 (require 'sly)
-(require 'sly-mrepl)
 (require 'cl-lib)
+
+(declare-function sly-mrepl--find-buffer "sly-mrepl.el")
+(declare-function sly-mrepl-new "sly-mrepl.el")
 
 (defun helm-sly-disable-internal-completion ()
   "Disable SLY own's completion system, e.g. to use Helm instead.
