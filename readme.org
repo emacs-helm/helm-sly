@@ -1,6 +1,6 @@
 #+TITLE: Helm-SLY
 
-Helm for [[https://github.com/joaotavora/sly  joaotavora/sly][SLY]], a Common Lisp interaction mode for Emacs.
+Helm for [[https://github.com/joaotavora/sly][SLY]], a Common Lisp interaction mode for Emacs.
 
 * Installation
 
