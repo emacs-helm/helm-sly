@@ -6,7 +6,7 @@
 ;; URL: https://github.com/emacs-helm/helm-sly
 ;; Version: 0.4.1
 ;; Keywords: convenience, helm, sly, lisp
-;; Package-Requires: ((emacs "25") (helm "3.2") (cl-lib "0.5") (sly "0.0"))
+;; Package-Requires: ((emacs "25.1") (helm "3.2") (cl-lib "0.5") (sly "0.0"))
 
 ;; This program is free software; you can redistribute it and/or modify
 ;; it under the terms of the GNU General Public License as published by
@@ -89,6 +89,7 @@ This is mostly useful when added to `sly-mrepl-hook'."
   "Keymap for Lisp connection source in Helm.")
 
 (defun helm-sly-output-buffer (&optional connection)
+  "Generic wrapper for CONNECTION output buffer."
   (sly-mrepl--find-buffer (or connection (sly-current-connection))))
 
 (defun helm-sly-go-to-repl (_candidate)
@@ -104,24 +105,31 @@ This is mostly useful when added to `sly-mrepl-hook'."
 (put 'helm-sly-go-to-repl 'helm-only t)
 
 (defun helm-sly-process (connection)
+  "Generic wrapper for CONNECTION process."
   (sly-process connection))
 
 (defun helm-sly-connection-number (connection)
+  "Generic wrapper for CONNECTION number."
   (sly-connection-number connection))
 
 (defun helm-sly-connection-name (connection)
+  "Generic wrapper for CONNECTION name."
   (sly-connection-name connection))
 
 (defun helm-sly-pid (connection)
+  "Generic wrapper for CONNECTION pid."
   (sly-pid connection))
 
 (defun helm-sly-implementation-type (connection)
+  "Generic wrapper for CONNECTION implementation type."
   (sly-lisp-implementation-type connection))
 
 (defun helm-sly-debug-buffers (connection)
+  "Generic wrapper for CONNECTION debug buffers."
   (sly-db-buffers connection))
 
 (defun helm-sly-buffer-connection (buffer)
+  "Generic wrapper for BUFFER's connection."
   (when (bufferp buffer)
     (with-current-buffer buffer
       sly-buffer-connection)))
@@ -149,17 +157,19 @@ This is mostly useful when added to `sly-mrepl-hook'."
 (put 'helm-sly-run-delete-buffers 'helm-only t)
 
 (defun helm-sly-set-default-connection (candidate)
-  "Set connection to use by default to that of candidate buffer."
+  "Set connection to use by default to that of CANDIDATE buffer."
   (let ((connection (car candidate)))
     (sly-select-connection connection)))
 (put 'helm-sly-rename-connection-buffer 'helm-only t)
 
 (defun helm-sly--net-processes ()
+  "Generic wrapper around connection processes."
   sly-net-processes)
 
 (defun helm-sly-delete-buffers (&optional _candidate)
-  "Kill marked REPL(s) and their inferior Lisps if they are the
-last buffer connected to it."
+  "Kill marked REPL(s).
+Kill their inferior Lisps as well if they are the last buffer
+connected to it."
   (let ((repl-buffers (helm-sly--repl-buffers)))
     (dolist (c (helm-marked-candidates))
       (let ((last-connection?
@@ -186,7 +196,7 @@ last buffer connected to it."
 (put 'helm-sly-run-rename-connection 'helm-only t)
 
 (defun helm-sly-rename-connection-buffer (candidate)
-  "Rename REPL buffer."
+  "Rename REPL buffer for CANDIDATE."
   (let* ((sly-dispatching-connection (car candidate)))
     (when (cadr candidate)
       (with-current-buffer (cadr candidate)
@@ -227,7 +237,8 @@ The REAL-VALUE is (P BUFFER)."
      (list p buffer))))
 
 (defun helm-sly--repl-buffers (&optional connection thread)
-  ;; Inspired by `sly-mrepl--find-buffer'.
+  "Return the list of buffers association to CONNECTION and/or THREAD.
+Inspired by `sly-mrepl--find-buffer'."
   (cl-remove-if-not
    (lambda (x)
      (with-current-buffer x
@@ -257,6 +268,7 @@ It returns all REPL buffer candidates + connections without buffers."
                      buffer-connections)))))
 
 (defun helm-sly--c-source-connection ()
+  "Build Helm source of Lisp connections."
   (helm-build-sync-source "Lisp connections"
     :candidates (helm-sly--repl-buffer-candidates)
     :action helm-sly-connection-actions
@@ -294,14 +306,17 @@ If a prefix arg is given split windows vertically."
             collect (funcall (intern b)))))
 
 (defun helm-sly-build-buffers-source ()
+  "Build Helm source of Lisp buffers."
   (helm-build-sync-source "Lisp buffers"
     :candidates (helm-sly--buffer-candidates)
     :action `(("Switch to buffer(s)" . helm-sly-switch-buffers))))
 
 (defun helm-sly-new-repl (name)
+  "Spawn new SLY REPL with name NAME."
   (sly-mrepl-new (sly-current-connection) name))
 
 (defun helm-sly-new-repl-choose-lisp ()
+  "Spawn new SLY REPL on a new connection."
   (let ((current-prefix-arg '-))
     (call-interactively #'sly)))
 
@@ -309,7 +324,8 @@ If a prefix arg is given split windows vertically."
   (helm-build-dummy-source "Open new REPL"
     :action (helm-make-actions
              "Open new REPL" 'helm-sly-new-repl
-             "Open new REPL with chosen Lisp" 'helm-sly-new-repl-choose-lisp)))
+             "Open new REPL with chosen Lisp" 'helm-sly-new-repl-choose-lisp))
+  "Helm source to make new REPLs.")
 
 (defun helm-sly-mini ()
   "Helm for Lisp connections and buffers."
@@ -331,12 +347,17 @@ If a prefix arg is given split windows vertically."
   "Lisp apropos.")
 
 (defun helm-sly--format-designator (designator)
+  "Generic wrapper around apropos' DESIGNATOR formatter."
   (let ((package (cadr designator))
         (name (car designator)))
     (format "%s:%s" package name)))
 
 (defun helm-sly--apropos-source (name external-only case-sensitive current-package)
-  "Build source that provides Helm completion against `apropos'."
+  "Build source that provides Helm completion against `apropos'.
+- NAME: name of the source.
+- EXTERNAL-ONLY: only search external symbols.
+- CASE-SENSITIVE: match case in apropos search.
+- CURRENT-PACKAGE: only search symbols in current package."
   (helm-make-source name 'helm-sly-apropos-type
     :candidates `(lambda ()
                    (with-current-buffer helm-current-buffer
@@ -349,6 +370,7 @@ If a prefix arg is given split windows vertically."
                               collect (helm-sly--format-designator (plist-get plist :designator)))))))
 
 (defun helm-sly-current-package ()
+  "Return the Common Lisp package in the current context."
   (or sly-buffer-package
       (sly-current-package)))
 
@@ -399,6 +421,7 @@ If a prefix arg is given split windows vertically."
 
 (defun helm-sly-normalize-xrefs (xref-alist)
   "Like `sly-insert-xrefs' but return a formatted list of strings instead.
+XREF-ALIST is as per `sly-insert-xrefs'.
 The strings are formatted as \"GROUP: LABEL\"."
   (cl-loop for (group . refs) in xref-alist
            append
@@ -407,7 +430,8 @@ The strings are formatted as \"GROUP: LABEL\"."
                     (list group label location))))
 
 (defun helm-sly-xref-lineno (location)
-  "Return 0 if there is location does not refer to a proper file."
+  "Return line number of xref's LOCATION.
+Return 0 if location does not refer to a proper file."
   (or
    (ignore-errors
      (save-window-excursion
@@ -418,8 +442,9 @@ The strings are formatted as \"GROUP: LABEL\"."
    0))
 
 (defun helm-sly-xref-transformer (candidates)
-  "Transform CANDIDATES (a list of (GROUP LABEL LOCATION) as per
-`helm-sly-normalize-xrefs') to \"GROUP: LABEL\"."
+  "Transform CANDIDATES to \"GROUP: LABEL\".
+CANDIDATES is a list of (GROUP LABEL LOCATION) as per
+`helm-sly-normalize-xrefs'."
   (cl-loop for (group label location) in candidates
            collect (cons (concat (propertize (abbreviate-file-name group)
                                              'face 'helm-grep-file)
@@ -432,19 +457,22 @@ The strings are formatted as \"GROUP: LABEL\"."
                          (list group label location))))
 
 (defun helm-sly-xref-goto (candidate)
+  "Go to CANDIDATE xref location."
   (let ((location (nth 2 candidate)))
     (switch-to-buffer
      (save-window-excursion
        (sly--pop-to-source-location location 'sly-xref)))))
 
 (defun helm-sly-build-xref-source (xrefs)
+  "Return a Helm source of Xrefs."
   (helm-build-sync-source "Lisp xrefs"
     :candidates (helm-sly-normalize-xrefs xrefs)
     :candidate-transformer 'helm-sly-xref-transformer
     :action `(("Switch to buffer(s)" . helm-sly-xref-goto))))
 
 (defun helm-sly-show-xref-buffer (xrefs _type _symbol _package &optional _method)
-  "See `sly-xref--show-results'."
+  "Show XREFS.
+See `sly-xref--show-results'."
   (helm :sources (list (helm-sly-build-xref-source xrefs))
         :buffer "*helm-sly-xref*"))
 
@@ -456,9 +484,9 @@ Note that the local minor mode has a global effect, thus making
   ;; TODO: Is it possible to disable the local minor mode?
   :init-value nil
   (let ((target 'sly-xref--show-results))
-    (if (advice-member-p 'helm-sly-show-xref-buffer target)
-        (advice-remove target 'helm-sly-show-xref-buffer)
-      (advice-add target :override 'helm-sly-show-xref-buffer))))
+    (if (advice-member-p #'helm-sly-show-xref-buffer target)
+        (advice-remove target #'helm-sly-show-xref-buffer)
+      (advice-add target :override #'helm-sly-show-xref-buffer))))
 
 ;;;###autoload
 (define-globalized-minor-mode global-helm-sly-mode
