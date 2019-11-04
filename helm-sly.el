@@ -464,7 +464,7 @@ CANDIDATES is a list of (GROUP LABEL LOCATION) as per
        (sly--pop-to-source-location location 'sly-xref)))))
 
 (defun helm-sly-build-xref-source (xrefs)
-  "Return a Helm source of Xrefs."
+  "Return a Helm source of XREFS."
   (helm-build-sync-source "Lisp xrefs"
     :candidates (helm-sly-normalize-xrefs xrefs)
     :candidate-transformer 'helm-sly-xref-transformer
