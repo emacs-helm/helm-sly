@@ -77,6 +77,12 @@
 This is mostly useful when added to `sly-mrepl-hook'."
   (sly-symbol-completion-mode -1))
 
+(defgroup helm-sly nil
+  "Helm sources and some utilities for SLY."
+  :prefix "helm-sly-"
+  :group 'helm
+  :link '(url-link :tag "GitHub" "https://github.com/emacs-helm/helm-sly"))
+
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
 
