@@ -321,17 +321,12 @@ If a prefix arg is given split windows vertically."
   "Spawn new SLY REPL with name NAME."
   (sly-mrepl-new (sly-current-connection) name))
 
-(defun helm-sly-new-repl-choose-lisp (&optional name)
+(defun helm-sly-new-repl-choose-lisp (&optional _name)
   "Spawn new SLY REPL on a new connection."
-  (cl-flet ((helm-sly-new-repl-wrapper
-             (old-function connection &optional _handler)
-             (funcall old-function connection name)))
-    (unwind-protect
-        (progn
-          (advice-add 'sly-mrepl-new :around #'helm-sly-new-repl-wrapper)
-          (let ((current-prefix-arg '-))
-            (call-interactively #'sly)))
-      (advice-remove 'sly-mrepl-new 'helm-sly-new-repl-wrapper))))
+  ;; TODO: Name is ignored for now.  Is there a way to pass the buffer name?
+  ;; Advising or using cl-letf on sly-mrepl-new does not seem to work.
+  (let ((current-prefix-arg '-))
+    (call-interactively #'sly)))
 
 (defvar helm-sly-new
   (helm-build-dummy-source "Open new REPL"
