@@ -176,16 +176,16 @@ This is mostly useful when added to `sly-mrepl-hook'."
   "Kill marked REPL(s).
 Kill their inferior Lisps as well if they are the last buffer
 connected to it."
-  (let ((repl-buffers (helm-sly--repl-buffers)))
-    (dolist (c (helm-marked-candidates))
-      (let ((last-connection?
-             (not (memq (car c)
-                        (mapcar #'helm-sly-buffer-connection
-                                (delete (cadr c) repl-buffers))))))
-        (when last-connection?
-          (let ((sly-dispatching-connection (car c)))
-            (sly-quit-lisp t)))
-        (kill-buffer (cadr c))))))
+  (dolist (c (helm-marked-candidates))
+    (let ((last-connection?
+           (not (memq (car c)
+                      (mapcar #'helm-sly-buffer-connection
+                              (delete (cadr c)
+                                      (helm-sly--repl-buffers)))))))
+      (when last-connection?
+        (let ((sly-dispatching-connection (car c)))
+          (sly-quit-lisp t)))
+      (kill-buffer (cadr c)))))
 (put 'helm-sly-delete-buffers 'helm-only t)
 
 (defun helm-sly-restart-connections (_candidate)
