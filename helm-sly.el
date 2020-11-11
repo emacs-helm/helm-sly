@@ -321,10 +321,17 @@ If a prefix arg is given split windows vertically."
   "Spawn new SLY REPL with name NAME."
   (sly-mrepl-new (sly-current-connection) name))
 
-(defun helm-sly-new-repl-choose-lisp ()
+(defun helm-sly-new-repl-choose-lisp (&optional name)
   "Spawn new SLY REPL on a new connection."
-  (let ((current-prefix-arg '-))
-    (call-interactively #'sly)))
+  (cl-flet ((helm-sly-new-repl-wrapper
+             (old-function connection &optional _handler)
+             (funcall old-function connection name)))
+    (unwind-protect
+        (progn
+          (advice-add 'sly-mrepl-new :around #'helm-sly-new-repl-wrapper)
+          (let ((current-prefix-arg '-))
+            (call-interactively #'sly)))
+      (advice-remove 'sly-mrepl-new 'helm-sly-new-repl-wrapper))))
 
 (defvar helm-sly-new
   (helm-build-dummy-source "Open new REPL"
