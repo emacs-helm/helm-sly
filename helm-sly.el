@@ -354,11 +354,34 @@ If a prefix arg is given split windows vertically."
    (requires-pattern :initform 2))
   "Lisp apropos.")
 
-(defun helm-sly--format-designator (designator)
-  "Generic wrapper around apropos' DESIGNATOR formatter."
-  (let ((package (cadr designator))
-        (name (car designator)))
-    (format "%s:%s" package name)))
+(defun helm-sly--format-apropos-entry (entry)
+  "Generic wrapper around apropos' entries.
+ENTRY is in the following form:
+
+\(:designator (\"FORMAT-SYMBOL\" \"ALEXANDRIA\" t)
+ :function \"Constructs a string by applying ARGUMENTS to string designator CONTROL as\"
+ :arglist \"(PACKAGE CONTROL &REST ARGUMENTS)\"
+ :bounds ((11 17)))"
+  (let* ((designator (plist-get entry :designator))
+         (type (nth 2 entry))
+         (synopsis (plist-get entry type))
+         (arglist (plist-get entry :arglist)))
+    (let ((real-value (downcase (sly-apropos-designator-string designator))))
+      (cons
+       (format "%s [%s%s]%s"
+               (propertize real-value
+                           'face 'sly-apropos-symbol)
+               (propertize (upcase-initials
+                              (replace-regexp-in-string
+                               "-" " " (substring (symbol-name type) 1)))
+                           'face 'italic)
+               (if (cl-find type '(:function :generic-function :macro))
+                   (downcase (format " %s" arglist))
+                 "")
+               (if (eq synopsis :not-documented)
+                   ""
+                 (concat "\n" synopsis)))
+       real-value))))
 
 (defun helm-sly--apropos-source (name external-only case-sensitive current-package)
   "Build source that provides Helm completion against `apropos'.
@@ -369,7 +392,7 @@ If a prefix arg is given split windows vertically."
   (helm-build-sync-source name
     :candidates `(lambda ()
                    (with-current-buffer helm-current-buffer
-                     (cl-loop for plist in (sly-eval (list 'slynk-apropos:apropos-list-for-emacs
+                     (cl-loop for entry in (sly-eval (list 'slynk-apropos:apropos-list-for-emacs
                                                            ;; Warning: Properties crash Slynk!
                                                            ;; See https://github.com/joaotavora/sly/issues/370.
                                                            (substring-no-properties helm-pattern)
@@ -377,9 +400,11 @@ If a prefix arg is given split windows vertically."
                                                            ,(not (null case-sensitive))
                                                            (when ,current-package
                                                              (helm-sly-current-package))))
-                              collect (helm-sly--format-designator (plist-get plist :designator)))))
+                              collect (helm-sly--format-apropos-entry entry))))
+    ;; TODO: Add actions with sly-print-apropos.
     :requires-pattern 2
-    :fuzzy-match t))
+    :fuzzy-match t
+    :multiline t))
 
 (defun helm-sly-current-package ()
   "Return the Common Lisp package in the current context."
