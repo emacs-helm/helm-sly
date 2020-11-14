@@ -366,16 +366,20 @@ If a prefix arg is given split windows vertically."
 - EXTERNAL-ONLY: only search external symbols.
 - CASE-SENSITIVE: match case in apropos search.
 - CURRENT-PACKAGE: only search symbols in current package."
-  (helm-make-source name 'helm-sly-apropos-type
+  (helm-build-sync-source name
     :candidates `(lambda ()
                    (with-current-buffer helm-current-buffer
                      (cl-loop for plist in (sly-eval (list 'slynk-apropos:apropos-list-for-emacs
-                                                           helm-pattern
+                                                           ;; Warning: Properties crash Slynk!
+                                                           ;; See https://github.com/joaotavora/sly/issues/370.
+                                                           (substring-no-properties helm-pattern)
                                                            ,(not (null external-only))
                                                            ,(not (null case-sensitive))
                                                            (when ,current-package
                                                              (helm-sly-current-package))))
-                              collect (helm-sly--format-designator (plist-get plist :designator)))))))
+                              collect (helm-sly--format-designator (plist-get plist :designator)))))
+    :requires-pattern 2
+    :fuzzy-match t))
 
 (defun helm-sly-current-package ()
   "Return the Common Lisp package in the current context."
@@ -419,7 +423,8 @@ If a prefix arg is given split windows vertically."
 
 ;;;###autoload
 (defun helm-sly-apropos ()
-  "Yet another Apropos with `helm'."
+  "Yet another Apropos with `helm'.
+It won't display before you start entering a pattern."
   (interactive)
   (helm :sources helm-sly-apropos-sources
         :buffer "*helm lisp apropos*"))
