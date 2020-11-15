@@ -346,14 +346,6 @@ If a prefix arg is given split windows vertically."
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
 
-(defclass helm-sly-apropos-type (helm-source-sync)
-  ((action :initform `(("Describe SYMBOL" . sly-describe-symbol)
-                       ("Edit definition" . sly-edit-definition)))
-   (persistent-action :initform #'sly-describe-symbol)
-   ;;(volatile :initform t)
-   (requires-pattern :initform 2))
-  "Lisp apropos.")
-
 (defun helm-sly--format-apropos-entry (entry)
   "Generic wrapper around apropos' entries.
 ENTRY is in the following form:
@@ -383,6 +375,26 @@ ENTRY is in the following form:
                  (concat "\n" synopsis)))
        real-value))))
 
+(defun helm-sly-apropos-inspect (name)
+  (sly-inspect (format "(quote %s)" name)))
+
+(defun helm-sly-apropos-describe-other-window (name)
+  ;; Warning: Both Helm and `sly-describe-symbol' have their own
+  ;; buffer-switching logic.
+  ;; To ensure `sly-describe-symbol' does not replace the current Helm buffer,
+  ;; we switch to it now.
+  (switch-to-buffer (sly-buffer-name :description))
+  (sly-describe-symbol name))
+
+(defcustom helm-sly-apropos-actions
+  `(("Describe" . sly-describe-symbol)
+    ("Go to source" . sly-edit-definition)
+    ("Inspect definition" . helm-sly-apropos-inspect))
+  "Actions for `helm-sly--apropos-source'.
+This is similar to the `sly-apropos-symbol' button type."
+  :group 'helm-sly
+  :type '(alist :key-type string :value-type function))
+
 (defun helm-sly--apropos-source (name external-only case-sensitive current-package)
   "Build source that provides Helm completion against `apropos'.
 - NAME: name of the source.
@@ -390,21 +402,25 @@ ENTRY is in the following form:
 - CASE-SENSITIVE: match case in apropos search.
 - CURRENT-PACKAGE: only search symbols in current package."
   (helm-build-sync-source name
-    :candidates `(lambda ()
-                   (with-current-buffer helm-current-buffer
-                     (cl-loop for entry in (sly-eval (list 'slynk-apropos:apropos-list-for-emacs
-                                                           ;; Warning: Properties crash Slynk!
-                                                           ;; See https://github.com/joaotavora/sly/issues/370.
-                                                           (substring-no-properties helm-pattern)
-                                                           ,(not (null external-only))
-                                                           ,(not (null case-sensitive))
-                                                           (when ,current-package
-                                                             (helm-sly-current-package))))
-                              collect (helm-sly--format-apropos-entry entry))))
-    ;; TODO: Add actions with sly-print-apropos.
+    :candidates
+    `(lambda ()
+       (with-current-buffer helm-current-buffer
+         (cl-loop for entry in (sly-eval
+                                (list 'slynk-apropos:apropos-list-for-emacs
+                                      ;; Warning: Properties crash Slynk!
+                                      ;; See https://github.com/joaotavora/sly/issues/370.
+                                      (substring-no-properties helm-pattern)
+                                      ,(not (null external-only))
+                                      ,(not (null case-sensitive))
+                                      (when ,current-package
+                                        (helm-sly-current-package))))
+                  collect (helm-sly--format-apropos-entry entry))))
     :requires-pattern 2
     :fuzzy-match t
-    :multiline t))
+    :multiline t
+    :persistent-help "Describe"
+    :action helm-sly-apropos-actions
+    :persistent-action #'helm-sly-apropos-describe-other-window))
 
 (defun helm-sly-current-package ()
   "Return the Common Lisp package in the current context."
