@@ -409,7 +409,7 @@ This is similar to the `sly-apropos-symbol' button type."
                                 (list 'slynk-apropos:apropos-list-for-emacs
                                       ;; Warning: Properties crash Slynk!
                                       ;; See https://github.com/joaotavora/sly/issues/370.
-                                      (substring-no-properties helm-pattern)
+                                      (regexp-quote (substring-no-properties helm-pattern))
                                       ,(not (null external-only))
                                       ,(not (null case-sensitive))
                                       (when ,current-package
