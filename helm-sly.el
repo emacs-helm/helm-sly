@@ -4,7 +4,7 @@
 ;;
 ;; Author: Pierre Neidhardt <mail@ambrevar.xyz>
 ;; URL: https://github.com/emacs-helm/helm-sly
-;; Version: 0.4.1
+;; Version: 0.5.0
 ;; Keywords: convenience, helm, sly, lisp
 ;; Package-Requires: ((emacs "25.1") (helm "3.2") (cl-lib "0.5") (sly "0.0"))
 
