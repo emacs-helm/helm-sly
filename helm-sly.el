@@ -389,7 +389,16 @@ ENTRY is in the following form:
 (defcustom helm-sly-apropos-actions
   `(("Describe" . sly-describe-symbol)
     ("Go to source" . sly-edit-definition)
-    ("Inspect definition" . helm-sly-apropos-inspect))
+    ("Inspect definition" . helm-sly-apropos-inspect)
+    ;; `sly-edit-uses' combines `sly-who-calls', `sly-who-references', and
+    ;; `sly-who-macroexpands'.
+    ("Find all the references to this symbol" . sly-edit-uses)
+    ;; `sly-calls-who' seems to only work on LispWorks, while `sly-list-callees'
+    ;; works everywhere.
+    ("Show all known callees" . sly-list-callees)
+    ("Show bindings of a global variable" . sly-who-binds)
+    ("Show assignments to a global variable" . sly-who-sets)
+    ("Show all known methods specialized on a class" . sly-who-specializes))
   "Actions for `helm-sly--apropos-source'.
 This is similar to the `sly-apropos-symbol' button type."
   :group 'helm-sly
