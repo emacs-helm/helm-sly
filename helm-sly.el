@@ -184,7 +184,7 @@ connected to it."
                                       (helm-sly--repl-buffers)))))))
       (when last-connection?
         (let ((sly-dispatching-connection (car c)))
-          (sly-quit-lisp t)))
+          (ignore-errors (sly-quit-lisp t))))
       (kill-buffer (cadr c)))))
 (put 'helm-sly-delete-buffers 'helm-only t)
 
