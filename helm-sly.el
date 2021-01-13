@@ -256,10 +256,11 @@ Inspired by `sly-mrepl--find-buffer'."
                 (eq thread sly-current-thread)))))
    (buffer-list)))
 
-(defun helm-sly--repl-buffer-candidates ()
+(cl-defun helm-sly--repl-buffer-candidates (&optional connection)
   "Return buffer/connection candidates.
-It returns all REPL buffer candidates + connections without buffers."
-  (let* ((repl-buffers (helm-sly--repl-buffers))
+It returns all REPL buffer candidates matching CONNECTION.
+Without CONNECTION, return all REPL buffer candidates and all buffer-less connections."
+  (let* ((repl-buffers (helm-sly--repl-buffers connection))
          (buffer-connections (cl-delete-duplicates
                               (mapcar #'helm-sly-buffer-connection
                                       repl-buffers))))
@@ -268,15 +269,19 @@ It returns all REPL buffer candidates + connections without buffers."
                        (helm-sly-buffer-connection b)
                        b))
                     repl-buffers)
-            (mapcar #'helm-sly--connection-candidates
-                    (cl-set-difference
-                     (reverse (helm-sly--net-processes))
-                     buffer-connections)))))
+            (unless connection
+              (mapcar #'helm-sly--connection-candidates
+                      (cl-set-difference
+                       (reverse (helm-sly--net-processes))
+                       buffer-connections))))))
 
-(defun helm-sly--c-source-connection ()
-  "Build Helm source of Lisp connections."
+(cl-defun helm-sly--c-source-connection (&optional (candidates
+                                                    (helm-sly--repl-buffer-candidates)))
+  "Build Helm source of Lisp connections.
+You can easily customize the candidates by, for instance, calling
+`helm-sly--repl-buffer-candidates' over a specific connection."
   (helm-build-sync-source "Lisp connections"
-    :candidates (helm-sly--repl-buffer-candidates)
+    :candidates candidates
     :action helm-sly-connection-actions
     :keymap helm-sly-connections-map))
 
