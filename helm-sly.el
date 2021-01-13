@@ -223,24 +223,33 @@ connected to it."
   :group 'helm-sly
   :type '(alist :key-type string :value-type function))
 
+(defun helm-sly-format-connection (connection buffer)
+  (let ((fstring "%s%2s  %-16s  %-17s  %-7s %-s %s"))
+    (format fstring
+            (if (eq sly-default-connection connection)
+                "*"
+              " ")
+            (helm-sly-connection-number connection)
+            (helm-sly-connection-name connection)
+            (or (process-id connection) (process-contact connection))
+            (helm-sly-pid connection)
+            (helm-sly-implementation-type connection)
+            buffer)))
+
+(defcustom helm-sly-connection-formatter #'helm-sly-format-connection
+  "Function that takes a connection and return the Helm display string.
+This can be used to customize the formatting of the buffer/connection sources."
+  :group 'helm-sly
+  :type 'function)
+
 (defun helm-sly--connection-candidates (p &optional buffer)
   "Return (DISPLAY-VALUE . REAL-VALUE) for connection P.
 The REAL-VALUE is (P BUFFER)."
   (setq buffer (or buffer
                    (helm-sly-output-buffer p)))
-  (let ((fstring "%s%2s  %-10s  %-17s  %-7s %-s %s"))
-    (cons
-     (format fstring
-             (if (eq sly-default-connection p)
-                 "*"
-               " ")
-             (helm-sly-connection-number p)
-             (helm-sly-connection-name p)
-             (or (process-id p) (process-contact p))
-             (helm-sly-pid p)
-             (helm-sly-implementation-type p)
-             buffer)
-     (list p buffer))))
+  (cons
+   (funcall helm-sly-connection-formatter p buffer)
+   (list p buffer)))
 
 (defun helm-sly--repl-buffers (&optional connection thread)
   "Return the list of buffers association to CONNECTION and/or THREAD.
