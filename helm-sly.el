@@ -259,21 +259,30 @@ Inspired by `sly-mrepl--find-buffer'."
 (cl-defun helm-sly--repl-buffer-candidates (&optional connection)
   "Return buffer/connection candidates.
 It returns all REPL buffer candidates matching CONNECTION.
-Without CONNECTION, return all REPL buffer candidates and all buffer-less connections."
+Without CONNECTION, return all REPL buffer candidates and all buffer-less connections.
+Current buffer is listed last."
   (let* ((repl-buffers (helm-sly--repl-buffers connection))
          (buffer-connections (cl-delete-duplicates
                               (mapcar #'helm-sly-buffer-connection
                                       repl-buffers))))
-    (append (mapcar (lambda (b)
-                      (helm-sly--connection-candidates
-                       (helm-sly-buffer-connection b)
-                       b))
-                    repl-buffers)
-            (unless connection
-              (mapcar #'helm-sly--connection-candidates
-                      (cl-set-difference
-                       (reverse (helm-sly--net-processes))
-                       buffer-connections))))))
+    (let* ((result
+            (append (mapcar (lambda (b)
+                              (helm-sly--connection-candidates
+                               (helm-sly-buffer-connection b)
+                               b))
+                            repl-buffers)
+                    (unless connection
+                      (mapcar #'helm-sly--connection-candidates
+                              (cl-set-difference
+                               (reverse (helm-sly--net-processes))
+                               buffer-connections)))))
+           (current-buffer-candidate
+            (cl-find (current-buffer)
+                     result
+                     :key #'cl-third)))
+      (append (cl-delete current-buffer-candidate result)
+              (and current-buffer-candidate
+                   (list current-buffer-candidate))))))
 
 (cl-defun helm-sly--c-source-connection (&optional (candidates
                                                     (helm-sly--repl-buffer-candidates)))
