@@ -105,9 +105,8 @@ This is mostly useful when added to `sly-mrepl-hook'."
    (mapcar (lambda (candidate)
              (let ((buffer (nth 1 candidate))
                    (connection (nth 0 candidate)))
-               (unless buffer
-                 (sly-mrepl-new connection))
-               buffer))
+               (or buffer
+                   (sly-mrepl-new connection))))
            (helm-marked-candidates))
    other-window-p))
 (put 'helm-sly-go-to-repl 'helm-only t)
@@ -361,7 +360,9 @@ If a prefix arg is given split windows vertically."
 
 (defun helm-sly-new-repl (name)
   "Spawn new SLY REPL with name NAME."
-  (sly-mrepl-new (sly-current-connection) name))
+  (if (sly-connected-p)
+      (sly-mrepl-new (sly-current-connection) name)
+    (sly)))
 
 (defun helm-sly-new-repl-choose-lisp (&optional _name)
   "Spawn new SLY REPL on a new connection."
