@@ -265,12 +265,15 @@ Inspired by `sly-mrepl--find-buffer'."
                 (eq thread sly-current-thread)))))
    (buffer-list)))
 
-(cl-defun helm-sly--repl-buffer-candidates (&optional connection)
+(cl-defun helm-sly--repl-buffer-candidates (&optional connection (predicate #'identity))
   "Return buffer/connection candidates.
 It returns all REPL buffer candidates matching CONNECTION.
-Without CONNECTION, return all REPL buffer candidates and all buffer-less connections.
+Further filter the candidates with PREDICATE.
+Without CONNECTION, return all REPL buffer candidates and all buffer-less
+connections (both matching PREDICATE).
 Current buffer is listed last."
-  (let* ((repl-buffers (helm-sly--repl-buffers connection))
+  (let* ((repl-buffers (cl-remove-if-not predicate
+                                         (helm-sly--repl-buffers connection)))
          (buffer-connections (cl-delete-duplicates
                               (mapcar #'helm-sly-buffer-connection
                                       repl-buffers))))
