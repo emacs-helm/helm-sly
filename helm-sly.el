@@ -88,7 +88,8 @@ This is mostly useful when added to `sly-mrepl-hook'."
 
 (defvar helm-sly-connections-map
   (let ((map (make-sparse-keymap)))
-    (set-keymap-parent map helm-map)
+    (set-keymap-parent map helm-buffer-map)
+    (define-key map (kbd "C-c o") 'helm-sly-run-go-to-repl-other-window)
     (define-key map (kbd "M-D") 'helm-sly-run-delete-buffers)
     (define-key map (kbd "M-R") 'helm-sly-run-rename-connection-buffer)
     map)
@@ -98,7 +99,7 @@ This is mostly useful when added to `sly-mrepl-hook'."
   "Generic wrapper for CONNECTION output buffer."
   (sly-mrepl--find-buffer (or connection (sly-current-connection))))
 
-(defun helm-sly-go-to-repl (_candidate)
+(defun helm-sly-go-to-repl (_candidate &optional other-window-p)
   "Switched to marked REPL(s)."
   (helm-window-show-buffers
    (mapcar (lambda (candidate)
@@ -107,8 +108,14 @@ This is mostly useful when added to `sly-mrepl-hook'."
                (unless buffer
                  (sly-mrepl-new connection))
                buffer))
-           (helm-marked-candidates))))
+           (helm-marked-candidates))
+   other-window-p))
 (put 'helm-sly-go-to-repl 'helm-only t)
+
+(defun helm-sly-go-to-repl-other-window (_candidate)
+  "Switched to marked REPL(s)."
+  (helm-sly-go-to-repl nil :other-window-p))
+(put 'helm-sly-go-to-repl-other-window 'helm-only t)
 
 (defun helm-sly-process (connection)
   "Generic wrapper for CONNECTION process."
@@ -154,6 +161,13 @@ This is mostly useful when added to `sly-mrepl-hook'."
    (cl-loop for c in (helm-marked-candidates)
             append (helm-sly-debug-buffers (car c)))))
 (put 'helm-sly-go-to-debug 'helm-only t)
+
+(defun helm-sly-run-go-to-repl-other-window ()
+  "Run `helm-sly-go-to-repl-other-window' action from `helm-sly--c-source-connection'."
+  (interactive)
+  (with-helm-alive-p
+    (helm-exit-and-execute-action 'helm-sly-go-to-repl-other-window)))
+(put 'helm-sly-run-go-to-repl-other-window 'helm-only t)
 
 (defun helm-sly-run-delete-buffers ()
   "Run `helm-sly-delete-buffers' action from `helm-sly--c-source-connection'."
@@ -211,6 +225,8 @@ connected to it."
 
 (defcustom helm-sly-connection-actions
   `(("Go to REPL" . helm-sly-go-to-repl)
+    (,(substitute-command-keys "Go to REPL in other window \\<helm-sly-connections-map>`\\[helm-sly-run-go-to-repl-other-window]'")
+     . helm-sly-go-to-repl-other-window)
     ("Set default" . helm-sly-set-default-connection)
     ("Restart" . helm-sly-restart-connections)
     (,(substitute-command-keys "Rename REPL buffer \\<helm-sly-connections-map>`\\[helm-sly-run-rename-connection-buffer]'")
