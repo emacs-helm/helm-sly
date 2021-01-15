@@ -38,3 +38,14 @@ Helm-SLY defines a few new commands:
 - helm-sly-mini :: Like ~helm-sly-list-connections~, but include an extra source
                    of Lisp-related buffers, like the events buffer or the
                    scratch buffer.
+
+* Change Log
+
+** 0.6
+
+- New action to go to REPL in other window.
+- List current connection buffer candidate last.
+- Make connection candidates customizable.
+  See =helm-sly--c-source-connection=.
+- Make connection candidate display customizable.
+  See =helm-sly-connection-formatter=.

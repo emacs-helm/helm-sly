@@ -1,10 +1,10 @@
 ;;; helm-sly.el --- Helm sources and some utilities for SLY. -*- lexical-binding: t -*-
 
-;; Copyright (C) 2019 Pierre Neidhardt <mail@ambrevar.xyz>
+;; Copyright (C) 2019, 2020, 2021 Pierre Neidhardt <mail@ambrevar.xyz>
 ;;
 ;; Author: Pierre Neidhardt <mail@ambrevar.xyz>
 ;; URL: https://github.com/emacs-helm/helm-sly
-;; Version: 0.5.1
+;; Version: 0.6.0
 ;; Keywords: convenience, helm, sly, lisp
 ;; Package-Requires: ((emacs "25.1") (helm "3.2") (cl-lib "0.5") (sly "0.0"))
 
