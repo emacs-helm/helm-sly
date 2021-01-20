@@ -316,11 +316,12 @@ Current buffer is listed last."
                    (list current-buffer-candidate))))))
 
 (cl-defun helm-sly--c-source-connection (&optional (candidates
-                                                    (helm-sly--repl-buffer-candidates)))
+                                                    (helm-sly--repl-buffer-candidates))
+                                                   (name "Lisp connections"))
   "Build Helm source of Lisp connections.
 You can easily customize the candidates by, for instance, calling
 `helm-sly--repl-buffer-candidates' over a specific connection."
-  (helm-build-sync-source "Lisp connections"
+  (helm-build-sync-source name
     :candidates candidates
     :action helm-sly-connection-actions
     :keymap helm-sly-connections-map))
