@@ -158,9 +158,12 @@ This is mostly useful when added to `sly-mrepl-hook'."
 
 (defun helm-sly-go-to-debug (_candidate)
   "Switched to debug buffers associated with the marked connections."
-  (helm-window-show-buffers
-   (cl-loop for c in (helm-marked-candidates)
-            append (helm-sly-debug-buffers (car c)))))
+  (let ((db-buffers (mapcan (lambda (candidate)
+                              (helm-sly-debug-buffers (car candidate)))
+                            (helm-marked-candidates))))
+    (if db-buffers
+        (helm-window-show-buffers db-buffers)
+      (message "No debug buffers"))))
 (put 'helm-sly-go-to-debug 'helm-only t)
 
 (defun helm-sly-run-go-to-repl-other-window ()
