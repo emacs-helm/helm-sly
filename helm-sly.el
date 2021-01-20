@@ -334,16 +334,21 @@ You can easily customize the candidates by, for instance, calling
   "Collect Lisp-related buffers, like the `events' buffer.
 If the buffer does not exist, we use the associated function to generate it.
 
-The list is in the (DISPLAY . REAL) form.  Because Helm seems to
-require that REAL be a string, we need to (funcall (intern
-\"function\")) in `helm-sly-switch-buffers' to generate the
-buffer."
-  (list (cons (sly-buffer-name :events :connection (sly-current-connection))
-              "sly-pop-to-events-buffer")
-        (cons (sly-buffer-name :threads :connection (sly-current-connection))
-              "sly-list-threads")
-        (cons (sly-buffer-name :scratch :connection (sly-current-connection))
-              "sly-scratch")))
+The list is in the (DISPLAY . REAL) form.
+REAL is either a buffer or a function returning a buffer."
+  (append
+   `(,(cons (sly-buffer-name :events :connection (sly-current-connection))
+            #'sly-pop-to-events-buffer)
+     ,(cons (sly-buffer-name :threads :connection (sly-current-connection))
+            #'sly-list-threads)
+     ,(cons (sly-buffer-name :scratch)
+            #'sly-scratch))
+   (delq nil (mapcar (lambda (name)
+                       (let ((buffer (get-buffer name)))
+                         (when buffer
+                           (cons name buffer))))
+                     '("*sly-description*" "*sly-compilation*")))))
+
 
 (defun helm-sly-switch-buffers (_candidate)
   "Switch to buffer candidates and replace current buffer.
@@ -352,7 +357,10 @@ If more than one buffer marked switch to these buffers in separate windows.
 If a prefix arg is given split windows vertically."
   (helm-window-show-buffers
    (cl-loop for b in (helm-marked-candidates)
-            collect (funcall (intern b)))))
+            collect (if (functionp b)
+                        (call-interactively b)
+                      b))))
+(put 'helm-sly-switch-buffers 'helm-only t)
 
 (defun helm-sly-build-buffers-source ()
   "Build Helm source of Lisp buffers."
