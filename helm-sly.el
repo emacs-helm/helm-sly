@@ -344,8 +344,14 @@ REAL is either a buffer or a function returning a buffer."
             #'sly-pop-to-events-buffer)
      ,(cons (sly-buffer-name :threads :connection (sly-current-connection))
             #'sly-list-threads)
-     ,(cons (sly-buffer-name :scratch)
-            #'sly-scratch))
+     ,(cons (sly-buffer-name :inferior :connection (sly-current-connection))
+            #'sly-inferior-lisp-buffer))
+   (when (sly-db-buffers (sly-current-connection))
+     (list
+      (cons (sly-buffer-name :db :connection (sly-current-connection))
+            #'sly-db-pop-to-debugger)))
+   (list (cons (sly-buffer-name :scratch)
+               #'sly-scratch))
    (delq nil (mapcar (lambda (name)
                        (let ((buffer (get-buffer name)))
                          (when buffer
