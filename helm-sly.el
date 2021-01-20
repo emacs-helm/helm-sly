@@ -391,11 +391,25 @@ If a prefix arg is given split windows vertically."
              "Open new REPL with chosen Lisp" 'helm-sly-new-repl-choose-lisp))
   "Helm source to make new REPLs.")
 
+(defun helm-sly-lisp-buffer-p (buffer)
+  "Return non-nil if BUFFER is derived from `lisp-mode'."
+  (with-current-buffer buffer
+    (derived-mode-p 'lisp-mode)))
+
+(cl-defun helm-sly-lisp-buffer-source (&key (name "Lisp buffers")
+                                            (predicate #'helm-sly-lisp-buffer-p))
+  (helm-make-source name 'helm-source-buffers
+    :buffer-list (lambda ()
+                   (mapcar #'buffer-name
+                           (cl-remove-if-not #'helm-sly-lisp-buffer-p
+                                             (buffer-list))))))
+
 (defun helm-sly-mini ()
   "Helm for Lisp connections and buffers."
   (interactive)
   (helm :sources (list (helm-sly--c-source-connection)
                        helm-sly-new
+                       (helm-sly-lisp-buffer-source)
                        (helm-sly-build-buffers-source))
         :buffer "*helm-sly-mini*"))
 
