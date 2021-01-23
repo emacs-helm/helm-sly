@@ -264,11 +264,13 @@ This can be used to customize the formatting of the buffer/connection sources."
 
 (defun helm-sly--connection-candidates (p &optional buffer)
   "Return (DISPLAY-VALUE . REAL-VALUE) for connection P.
-The REAL-VALUE is (P BUFFER)."
+The REAL-VALUE is (P BUFFER).
+If BUFFER is nil, the inferior Lisp buffer is used in the display function."
   (setq buffer (or buffer
                    (helm-sly-output-buffer p)))
   (cons
-   (funcall helm-sly-connection-formatter p buffer)
+   (funcall helm-sly-connection-formatter p (or buffer
+                                                (sly-inferior-lisp-buffer p)))
    (list p buffer)))
 
 (defun helm-sly--repl-buffers (&optional connection thread)
