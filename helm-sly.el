@@ -412,7 +412,7 @@ If a prefix arg is given split windows vertically."
   (helm-make-source name 'helm-source-buffers
     :buffer-list (lambda ()
                    (mapcar #'buffer-name
-                           (cl-remove-if-not #'helm-sly-lisp-buffer-p
+                           (cl-remove-if-not predicate
                                              (buffer-list))))))
 
 (defun helm-sly-mini ()
