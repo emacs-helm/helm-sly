@@ -41,6 +41,17 @@ Helm-SLY defines a few new commands:
 
 * Change Log
 
+** 0.7
+
+- Add source listing all Lisp buffers.
+- Make helm-sly--c-source-connection more customizable.
+- Include inferior Lisp buffer to the "Lisp buffers" source.
+  It was already accessible via the action menu.
+- Dynamically list the debug buffer in the "Lisp buffers" source, when present.
+  It was already accessible via the action menu.
+- Dynamically list sly-description and sly-compilation when present.
+- Fix sly-scratch and sly-db buffer switching.
+
 ** 0.6
 
 - New action to go to REPL in other window.
