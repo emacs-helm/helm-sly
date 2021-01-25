@@ -71,6 +71,7 @@
 
 (declare-function sly-mrepl--find-buffer "sly-mrepl.el")
 (declare-function sly-mrepl-new "sly-mrepl.el")
+(declare-function sly-scratch "sly-scratch.el")
 
 (defun helm-sly-disable-internal-completion ()
   "Disable SLY own's completion system, e.g. to use Helm instead.
