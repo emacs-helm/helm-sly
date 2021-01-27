@@ -379,7 +379,7 @@ If a prefix arg is given split windows vertically."
 
 (defun helm-sly-build-buffers-source ()
   "Build Helm source of Lisp buffers."
-  (helm-build-sync-source "Lisp buffers"
+  (helm-build-sync-source "Build buffers"
     :candidates (helm-sly--buffer-candidates)
     :action `(("Switch to buffer(s)" . helm-sly-switch-buffers))))
 
