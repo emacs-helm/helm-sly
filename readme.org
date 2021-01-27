@@ -41,6 +41,13 @@ Helm-SLY defines a few new commands:
 
 * Change Log
 
+** 0.7.1
+
+- Fix =predicate= argument in =helm-sly-lisp-buffer-source=.
+- Fix buffer-less connection switching.
+- Rename =helm-sly-build-buffers-source= source name to "Build buffers", to
+  avoid conflict with Lisp buffers.  This fixes completion against buffers.
+
 ** 0.7
 
 - Add source listing all Lisp buffers.
