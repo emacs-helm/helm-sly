@@ -108,7 +108,14 @@ This is mostly useful when added to `sly-mrepl-hook'."
                    (connection (nth 0 candidate)))
                (or buffer
                    (and (process-live-p connection)
-                        (sly-mrepl-new connection))
+                        ;; WARNING: Current buffer might be another mrepl, in
+                        ;; which case we must locally nullify
+                        ;; `sly-buffer-connection' and
+                        ;; `sly-dispatching-connection' as per
+                        ;; `sly-mrepl--find-buffer'.
+                        (let ((sly-buffer-connection nil)
+                              (sly-dispatching-connection nil))
+                          (sly-mrepl-new connection)))
                    (sly))))
            (helm-marked-candidates))
    other-window-p))
