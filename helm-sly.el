@@ -615,12 +615,65 @@ CANDIDATES is a list of (GROUP LABEL LOCATION) as per
      (save-window-excursion
        (sly--pop-to-source-location location 'sly-xref)))))
 
+(defun helm-sly-xref-recompile (_candidate &optional policy)
+  "Recompile selected candidates.
+POLICY is as per `sly-compile-defun'.
+The POLICY of NIL defaults to `sly-compilation-policy'."
+  (let ((sly-compilation-policy (sly-compute-policy policy)))
+    (let ((labels '())
+          (locations '()))
+      (dolist (candidate (helm-marked-candidates))
+        (push (nth 1 candidate) labels)
+        (push (nth 2 candidate) locations))
+      (sly-recompile-locations
+       locations
+       (lambda (results)
+         (message "Recompilation results: %s"
+                  (mapconcat (lambda (result)
+                               (concat (pop labels) " "
+                                       (if (sly-compilation-result.successp result)
+                                           "OK"
+                                         "fail")))
+                             results
+                             ", ")))))))
+
+(defun helm-sly-xref-recompile-debug1 (_candidate)
+  "Recompile selected candidates with debug level 1."
+  (helm-sly-xref-recompile nil 1))
+
+(defun helm-sly-xref-recompile-debug2 (_candidate)
+  "Recompile selected candidates with debug level 2."
+  (helm-sly-xref-recompile nil 2))
+
+(defun helm-sly-xref-recompile-debug3 (_candidate)
+  "Recompile selected candidates with debug level 3."
+  (helm-sly-xref-recompile nil 3))
+
+(defun helm-sly-xref-recompile-speed1 (_candidate)
+  "Recompile selected candidates with speed level 1."
+  (helm-sly-xref-recompile nil -1))
+
+(defun helm-sly-xref-recompile-speed2 (_candidate)
+  "Recompile selected candidates with speed level 2."
+  (helm-sly-xref-recompile nil -2))
+
+(defun helm-sly-xref-recompile-speed3 (_candidate)
+  "Recompile selected candidates with speed level 3."
+  (helm-sly-xref-recompile nil -3))
+
 (defun helm-sly-build-xref-source (xrefs)
   "Return a Helm source of XREFS."
   (helm-build-sync-source "Lisp xrefs"
     :candidates (helm-sly-normalize-xrefs xrefs)
     :candidate-transformer 'helm-sly-xref-transformer
-    :action `(("Switch to buffer(s)" . helm-sly-xref-goto))))
+    :action `(("Switch to buffer(s)" . helm-sly-xref-goto)
+              ("Recompile" . helm-sly-xref-recompile)
+              ("Recompile (debug 1)" . helm-sly-xref-recompile-debug1)
+              ("Recompile (debug 2)" . helm-sly-xref-recompile-debug2)
+              ("Recompile (debug 3)" . helm-sly-xref-recompile-debug3)
+              ("Recompile (speed 1)" . helm-sly-xref-recompile-speed1)
+              ("Recompile (speed 2)" . helm-sly-xref-recompile-speed2)
+              ("Recompile (speed 3)" . helm-sly-xref-recompile-speed3))))
 
 (defun helm-sly-show-xref-buffer (xrefs _type _symbol _package &optional _method)
   "Show XREFS.
