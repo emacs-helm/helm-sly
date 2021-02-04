@@ -689,6 +689,8 @@ Note that the local minor mode has a global effect, thus making
   ;; TODO: Is it possible to disable the local minor mode?
   :init-value nil
   (let ((target 'sly-xref--show-results))
+    ;; TODO: Weirdly enough, the advice seems to be ignored once in a while.
+    ;; See https://github.com/joaotavora/sly/issues/408.
     (if (advice-member-p #'helm-sly-show-xref-buffer target)
         (advice-remove target #'helm-sly-show-xref-buffer)
       (advice-add target :override #'helm-sly-show-xref-buffer))))
