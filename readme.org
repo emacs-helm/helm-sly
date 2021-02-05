@@ -41,6 +41,10 @@ Helm-SLY defines a few new commands:
 
 * Change Log
 
+** 0.7.2
+
+- Add "recompile" actions to Xref source.
+
 ** 0.7.1
 
 - Fix =predicate= argument in =helm-sly-lisp-buffer-source=.
